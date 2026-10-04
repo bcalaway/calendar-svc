@@ -83,3 +83,16 @@ class CalendarDay(Base):
     capture_id: Mapped[int] = mapped_column(Integer)  # mkt-data's capture, not a local key
     valid_from: Mapped[datetime] = mapped_column(DateTime(timezone=True))
     valid_to: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+
+
+class LoadRun(Base):
+    """Each load from mkt-data's near-raw rows: when, how it went, and what it did (for metrics)."""
+
+    __tablename__ = "load_run"
+    __table_args__ = (CheckConstraint("outcome IN ('ok', 'error')", name="ck_load_run_outcome"),)
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    started_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+    finished_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+    outcome: Mapped[str] = mapped_column(String(8))
+    detail: Mapped[str] = mapped_column(Text)
