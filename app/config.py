@@ -40,6 +40,11 @@ class Settings:
     # answer 503 rather than run unauthenticated.
     airflow_token: str | None = os.environ.get("AIRFLOW_TOKEN")
 
+    # Read-only token for home-mcp: accepted on the job API's GET endpoints
+    # (the business-day answer), like mkt-data's READ_TOKEN. Optional; the
+    # Airflow token works there too.
+    read_token: str | None = os.environ.get("READ_TOKEN")
+
     # mkt-data's gRPC server, which serves the near-raw calendar rows
     # (CalendarSources) on the home-platform network.
     mkt_data_grpc: str = os.environ.get("MKT_DATA_GRPC", "mkt-data:9090")
