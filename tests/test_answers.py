@@ -101,3 +101,13 @@ def test_closes_over_http(loaded, monkeypatch):
     monkeypatch.setattr(jobs, "settings", Settings(airflow_token="a"))
     r = client.get("/jobs/calendars/X/closes?start=2026-01-01&end=2026-12-31", headers={"Authorization": "Bearer a"})
     assert r.status_code == 200 and [c["date"] for c in r.json()["closes"]] == ["2026-04-03", "2026-12-25"]
+
+
+def test_coverage(loaded):
+    with db.session() as s:
+        rows = service.coverage(s, "X")
+    assert rows == [
+        {"year": 2026, "source": "X-PUB", "kind": "published"},
+        {"year": 2027, "source": "X-PROJ", "kind": "projected"},
+        {"year": 2029, "source": "X-PROJ", "kind": "projected"},
+    ]

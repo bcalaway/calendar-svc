@@ -17,7 +17,7 @@ It runs on the home platform's AWS hub (`bcalaway/nyc_pa_aws_gitops`) as a regis
   - `POST /jobs/load`: rebuild every golden calendar from mkt-data's near-raw rows (gRPC `CalendarSources` at `mkt-data:9090`). Run by the DAG `calendar_svc__load` on mkt-data's Asset `mkt_data_calendar_sources` and nightly. Each run is a `load_run` row.
   - `GET /jobs/calendars/{name}/business-day?on=YYYY-MM-DD`: whether that date is a business day, for DAGs' short-circuit first task. `"projected": true` for a year no publisher covers yet; 409 for a year no source covers.
   - `GET /jobs/calendars/{name}/closes?start=…&end=…`: closed and early-close weekdays in a range.
-- **gRPC `calendar_svc.Calendars`** (`proto/calendars.proto`, `calendar-svc:9090`): `ListCalendars`, `BusinessDay`, `Closes`, for other services.
+- **gRPC `calendar_svc.Calendars`** (`proto/calendars.proto`, `calendar-svc:9090`): `ListCalendars`, `BusinessDay`, `Closes`, `Coverage` (each year's credited source and its kind), for other services.
 - **`GET /metrics`** for Prometheus: the last load, and per calendar its days, years by kind of source, gap years, upcoming closes, and whether next year is published (publishers only) or overdue.
 
 `proto/calendar_sources.proto` is a copy of mkt-data's contract, which calendar-svc reads; change it in mkt-data first.

@@ -15,6 +15,9 @@ service Calendars {
   rpc BusinessDay(BusinessDayRequest) returns (BusinessDayResponse);
   // Closed and early-close weekdays in a date range (inclusive).
   rpc Closes(ClosesRequest) returns (ClosesResponse);
+  // Every covered year, with the source credited for it and that source's
+  // kind (published, rules, projected).
+  rpc Coverage(CoverageRequest) returns (CoverageResponse);
 }
 
 message ListCalendarsRequest {}
@@ -63,4 +66,19 @@ message Close {
 message ClosesResponse {
   string calendar = 1;
   repeated Close closes = 2;
+}
+
+message CoverageRequest {
+  string calendar = 1;
+}
+
+message YearCoverage {
+  int32 year = 1;
+  string source = 2;        // the mkt-data source credited, e.g. SIFMA-US-ARCHIVE
+  string kind = 3;          // published | rules | projected
+}
+
+message CoverageResponse {
+  string calendar = 1;
+  repeated YearCoverage years = 2;
 }
