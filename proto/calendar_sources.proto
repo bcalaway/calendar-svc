@@ -1,0 +1,67 @@
+syntax = "proto3";
+
+package mkt_data;
+
+// A copy of mkt-data's proto/calendar_sources.proto (the contract mkt-data
+// owns and serves at mkt-data:9090); calendar-svc is a client of it. Keep it
+// identical: change it in mkt-data first, then copy it here.
+//
+// Near-raw calendar data (docs/phase-2.md, Part A): each calendar source's
+// parse as that source states it, one set of rows per source, no
+// precedence. calendar-svc reads this to build golden calendars.
+//
+// Internal-only per ADR-0020: reachable as mkt-data:9090 on the
+// home-platform Docker network, never through Traefik. Dates are ISO
+// strings (YYYY-MM-DD), times HH:MM (empty for none), timestamps ISO 8601
+// with offset (empty for none).
+service CalendarSources {
+  // Every calendar source mkt-data captures, with its latest capture.
+  rpc ListSources(ListSourcesRequest) returns (ListSourcesResponse);
+  // One source's years and days, current and superseded. Calendars are a
+  // few thousand rows, so a source is read whole, not by watermark.
+  rpc GetSource(GetSourceRequest) returns (SourceRows);
+}
+
+message ListSourcesRequest {}
+
+message SourceInfo {
+  string name = 1;           // e.g. SIFMA-US-ARCHIVE
+  string calendar = 2;       // the calendar mkt-data captures it for, e.g. SIFMA-US
+  string url = 3;
+  string description = 4;
+  bool parsed = 5;           // false: kept raw only, no parser yet (no rows)
+  int64 latest_capture_id = 6;     // 0 if nothing captured yet
+  string latest_capture_at = 7;
+  int64 latest_applied_capture_id = 8;  // newest capture any near-raw row or year came from; 0 if none
+}
+
+message ListSourcesResponse {
+  repeated SourceInfo sources = 1;
+}
+
+message GetSourceRequest {
+  string source = 1;
+  bool include_superseded = 2;  // also return days a later capture changed or dropped
+}
+
+message SourceYear {
+  int32 year = 1;
+  int64 capture_id = 2;
+  string first_seen_at = 3;
+}
+
+message SourceDay {
+  string day = 1;
+  string status = 2;      // closed | early_close
+  string close_time = 3;  // HH:MM local to the calendar, early closes only
+  string holiday = 4;
+  int64 capture_id = 5;
+  string valid_from = 6;
+  string valid_to = 7;    // empty: current
+}
+
+message SourceRows {
+  SourceInfo source = 1;
+  repeated SourceYear years = 2;
+  repeated SourceDay days = 3;
+}

@@ -19,10 +19,13 @@ FROM base AS dev
 COPY requirements-dev.txt .
 RUN pip install --no-cache-dir -r requirements-dev.txt
 COPY tests/ tests/
+# Airflow DAGs aren't part of the app image (the platform delivers them to
+# Airflow), but the tests check them.
+COPY dags/ dags/
 COPY ruff.toml .
 
 FROM dev AS lint
-RUN ruff check app/ tests/ migrations/
+RUN ruff check app/ tests/ migrations/ dags/
 
 FROM dev AS test
 RUN pytest
