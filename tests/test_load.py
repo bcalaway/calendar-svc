@@ -72,8 +72,8 @@ def test_metrics_after_a_load(migrated_db):
         service.run_load(s, _fetch({"FED-K8": K8}))
         text = render(s)
     assert "calendar_svc_load_ok 1" in text
-    assert 'calendar_svc_calendar_days{calendar="FED"} 2' in text
-    assert 'calendar_svc_calendar_first_year{calendar="FED"} 2026' in text
+    assert 'calendar_svc_calendar_days{calendar="FED",status="closed"} 2' in text
+    assert 'calendar_svc_calendar_first_year{calendar="FED",kind="published"} 2026' in text
     assert "calendar_svc_load_last_success_timestamp_seconds " in text
 
 

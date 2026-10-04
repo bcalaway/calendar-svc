@@ -3,8 +3,8 @@ import asyncio
 import grpc
 from grpc_health.v1 import health_pb2, health_pb2_grpc
 
-from app.grpc_gen import example_service_pb2, example_service_pb2_grpc
-from app.grpc_server import EXAMPLE_SERVICE, start_grpc_server
+from app.grpc_gen import calendars_pb2, calendars_pb2_grpc
+from app.grpc_server import CALENDARS_SERVICE, start_grpc_server
 
 
 async def _call(fn):
@@ -21,19 +21,43 @@ def test_health_reports_serving():
     async def check(channel):
         stub = health_pb2_grpc.HealthStub(channel)
         overall = await stub.Check(health_pb2.HealthCheckRequest(service=""))
-        example = await stub.Check(health_pb2.HealthCheckRequest(service=EXAMPLE_SERVICE))
-        return overall.status, example.status
+        calendars = await stub.Check(health_pb2.HealthCheckRequest(service=CALENDARS_SERVICE))
+        return overall.status, calendars.status
 
     serving = health_pb2.HealthCheckResponse.SERVING
     assert asyncio.run(_call(check)) == (serving, serving)
 
 
-def test_ping():
-    async def ping(channel):
-        stub = example_service_pb2_grpc.ExampleServiceStub(channel)
-        return await stub.Ping(example_service_pb2.PingRequest(message="hello"))
+def test_calendars_service(migrated_db):
+    from app import db
+    from app.calendars import service
+    from tests.test_load import K8, _fetch
 
-    assert asyncio.run(_call(ping)).message == "pong: hello"
+    with db.session() as s:
+        service.run_load(s, _fetch({"FED-K8": K8}))
+
+    async def ask(channel):
+        stub = calendars_pb2_grpc.CalendarsStub(channel)
+        listed = await stub.ListCalendars(calendars_pb2.ListCalendarsRequest())
+        closed = await stub.BusinessDay(calendars_pb2.BusinessDayRequest(calendar="fed", date="2026-10-19"))
+        closes = await stub.Closes(calendars_pb2.ClosesRequest(calendar="FED", start="2026-01-01", end="2026-12-31"))
+        codes = []
+        for req in (calendars_pb2.BusinessDayRequest(calendar="FED", date="2030-01-02"),
+                    calendars_pb2.BusinessDayRequest(calendar="NOPE", date="2026-01-02"),
+                    calendars_pb2.BusinessDayRequest(calendar="FED", date="tomorrow")):
+            try:
+                await stub.BusinessDay(req)
+                codes.append(None)
+            except grpc.aio.AioRpcError as e:
+                codes.append(e.code())
+        return listed, closed, closes, codes
+
+    listed, closed, closes, codes = asyncio.run(_call(ask))
+    fed = next(c for c in listed.calendars if c.name == "FED")
+    assert (fed.first_year, fed.last_year, fed.timezone) == (2026, 2026, "America/New_York")
+    assert closed.business_day is False and closed.status == "closed" and closed.holiday == "Columbus Day"
+    assert [c.date for c in closes.closes] == ["2026-01-01", "2026-10-19"]
+    assert codes == [grpc.StatusCode.OUT_OF_RANGE, grpc.StatusCode.NOT_FOUND, grpc.StatusCode.INVALID_ARGUMENT]
 
 
 def test_fetch_states_reads_mkt_datas_calendar_sources():
