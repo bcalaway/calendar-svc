@@ -59,6 +59,12 @@ def _closes(name: str, start: date, end: date) -> calendars_pb2.ClosesResponse:
     ])
 
 
+def _coverage(name: str) -> calendars_pb2.CoverageResponse:
+    with db.session() as s:
+        rows = service.coverage(s, name)
+    return calendars_pb2.CoverageResponse(calendar=name, years=[calendars_pb2.YearCoverage(**r) for r in rows])
+
+
 def _date(value: str) -> date:
     return date.fromisoformat(value)
 
@@ -88,6 +94,13 @@ class Calendars(calendars_pb2_grpc.CalendarsServicer):
             await context.abort(grpc.StatusCode.INVALID_ARGUMENT, "start and end must be YYYY-MM-DD")
         try:
             return await asyncio.to_thread(_closes, request.calendar.upper(), start, end)
+        except service.UnknownCalendar as e:
+            await context.abort(grpc.StatusCode.NOT_FOUND, str(e))
+
+
+    async def Coverage(self, request, context):
+        try:
+            return await asyncio.to_thread(_coverage, request.calendar.upper())
         except service.UnknownCalendar as e:
             await context.abort(grpc.StatusCode.NOT_FOUND, str(e))
 

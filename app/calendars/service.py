@@ -112,3 +112,18 @@ def closes(s: Session, name: str, start: date, end: date) -> list[dict]:
         }
         for r in rows
     ]
+
+
+def coverage(s: Session, name: str) -> list[dict]:
+    """Every covered year, by year: the source credited for it and that source's kind."""
+    cal_def = CALENDARS.get(name)
+    if cal_def is None:
+        raise UnknownCalendar(f"unknown calendar {name!r}; known: {sorted(CALENDARS)}")
+    cal = s.scalar(select(Calendar).where(Calendar.name == name))
+    if cal is None:
+        return []
+    kind = _kind_of(cal_def)
+    return [
+        {"year": y.year, "source": y.source, "kind": kind.get(y.source, "published")}
+        for y in s.scalars(select(CalendarYear).where(CalendarYear.calendar_id == cal.id).order_by(CalendarYear.year))
+    ]

@@ -41,6 +41,7 @@ def test_calendars_service(migrated_db):
         listed = await stub.ListCalendars(calendars_pb2.ListCalendarsRequest())
         closed = await stub.BusinessDay(calendars_pb2.BusinessDayRequest(calendar="fed", date="2026-10-19"))
         closes = await stub.Closes(calendars_pb2.ClosesRequest(calendar="FED", start="2026-01-01", end="2026-12-31"))
+        cov = await stub.Coverage(calendars_pb2.CoverageRequest(calendar="FED"))
         codes = []
         for req in (calendars_pb2.BusinessDayRequest(calendar="FED", date="2030-01-02"),
                     calendars_pb2.BusinessDayRequest(calendar="NOPE", date="2026-01-02"),
@@ -50,9 +51,10 @@ def test_calendars_service(migrated_db):
                 codes.append(None)
             except grpc.aio.AioRpcError as e:
                 codes.append(e.code())
-        return listed, closed, closes, codes
+        return listed, closed, closes, codes, cov
 
-    listed, closed, closes, codes = asyncio.run(_call(ask))
+    listed, closed, closes, codes, cov = asyncio.run(_call(ask))
+    assert [(y.year, y.source, y.kind) for y in cov.years] == [(2026, "FED-K8", "published")]
     fed = next(c for c in listed.calendars if c.name == "FED")
     assert (fed.first_year, fed.last_year, fed.timezone) == (2026, 2026, "America/New_York")
     assert closed.business_day is False and closed.status == "closed" and closed.holiday == "Columbus Day"
