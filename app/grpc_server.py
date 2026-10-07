@@ -21,6 +21,8 @@ from sqlalchemy import select
 from app import db
 from app.calendars import service
 from app.calendars.definitions import CALENDARS as CALENDAR_DEFS
+from app.calendars.mkt_data import fetch_states
+from app.config import settings
 from app.grpc_gen import calendars_pb2, calendars_pb2_grpc
 from app.models import Calendar, CalendarYear
 
@@ -54,7 +56,7 @@ def _closes(name: str, start: date, end: date) -> calendars_pb2.ClosesResponse:
         rows = service.closes(s, name, start, end)
     return calendars_pb2.ClosesResponse(calendar=name, closes=[
         calendars_pb2.Close(date=r["date"], status=r["status"], holiday=r["holiday"], close_time=r["close_time"],
-                            projected=r["projected"])
+                            projected=r["projected"], source=r["source"])
         for r in rows
     ])
 
@@ -63,6 +65,25 @@ def _coverage(name: str) -> calendars_pb2.CoverageResponse:
     with db.session() as s:
         rows = service.coverage(s, name)
     return calendars_pb2.CoverageResponse(calendar=name, years=[calendars_pb2.YearCoverage(**r) for r in rows])
+
+
+def _sources(name: str) -> calendars_pb2.ListCalendarSourcesResponse:
+    with db.session() as s:
+        rows = service.sources(s, name)
+    return calendars_pb2.ListCalendarSourcesResponse(calendar=name, sources=[calendars_pb2.CalendarSource(**r) for r in rows])
+
+
+def _day_history(name: str, day: date) -> calendars_pb2.DayHistoryResponse:
+    with db.session() as s:
+        rows = service.day_history(s, name, day)
+    return calendars_pb2.DayHistoryResponse(calendar=name, date=day.isoformat(),
+                                            versions=[calendars_pb2.DayVersion(**r) for r in rows])
+
+
+def _disagreements(name: str) -> calendars_pb2.DisagreementsResponse:
+    with db.session() as s:
+        rows = service.disagreements(s, name, lambda names: fetch_states(settings.mkt_data_grpc, names))
+    return calendars_pb2.DisagreementsResponse(calendar=name, days=[calendars_pb2.Disagreement(**r) for r in rows])
 
 
 def _date(value: str) -> date:
@@ -103,6 +124,30 @@ class Calendars(calendars_pb2_grpc.CalendarsServicer):
             return await asyncio.to_thread(_coverage, request.calendar.upper())
         except service.UnknownCalendar as e:
             await context.abort(grpc.StatusCode.NOT_FOUND, str(e))
+
+    async def ListSources(self, request, context):
+        try:
+            return await asyncio.to_thread(_sources, request.calendar.upper())
+        except service.UnknownCalendar as e:
+            await context.abort(grpc.StatusCode.NOT_FOUND, str(e))
+
+    async def DayHistory(self, request, context):
+        try:
+            day = _date(request.date)
+        except ValueError:
+            await context.abort(grpc.StatusCode.INVALID_ARGUMENT, f"bad date {request.date!r}; want YYYY-MM-DD")
+        try:
+            return await asyncio.to_thread(_day_history, request.calendar.upper(), day)
+        except service.UnknownCalendar as e:
+            await context.abort(grpc.StatusCode.NOT_FOUND, str(e))
+
+    async def Disagreements(self, request, context):
+        try:
+            return await asyncio.to_thread(_disagreements, request.calendar.upper())
+        except service.UnknownCalendar as e:
+            await context.abort(grpc.StatusCode.NOT_FOUND, str(e))
+        except grpc.RpcError as e:  # mkt-data, read at call time
+            await context.abort(grpc.StatusCode.UNAVAILABLE, f"couldn't read mkt-data's sources: {e.code().name}")
 
 
 async def start_grpc_server(port: int) -> tuple[grpc.aio.Server, int]:
