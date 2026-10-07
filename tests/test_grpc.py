@@ -96,3 +96,28 @@ def test_fetch_states_reads_mkt_datas_calendar_sources():
         server.stop(grace=None)
     assert list(states) == ["FED-K8"] and list(states["FED-K8"].days) == [date(2026, 1, 1)]
     assert info[2] == {"source": "NYSE-HOURS", "note": "mkt-data doesn't list this source"}
+
+
+def test_the_calendars_screens_calls(migrated_db, monkeypatch):
+    from app import db, grpc_server
+    from app.calendars import service
+    from tests.test_load import K8, _fetch
+
+    with db.session() as s:
+        service.run_load(s, _fetch({"FED-K8": K8}))
+    # Disagreements read mkt-data at call time: the same fake here.
+    monkeypatch.setattr(grpc_server, "fetch_states", lambda target, names: _fetch({"FED-K8": K8})(names))
+
+    async def ask(channel):
+        stub = calendars_pb2_grpc.CalendarsStub(channel)
+        srcs = await stub.ListSources(calendars_pb2.ListCalendarSourcesRequest(calendar="fed"))
+        hist = await stub.DayHistory(calendars_pb2.DayHistoryRequest(calendar="FED", date="2026-10-19"))
+        dis = await stub.Disagreements(calendars_pb2.DisagreementsRequest(calendar="FED"))
+        closes = await stub.Closes(calendars_pb2.ClosesRequest(calendar="FED", start="2026-10-01", end="2026-10-31"))
+        return srcs, hist, dis, closes
+
+    srcs, hist, dis, closes = asyncio.run(_call(ask))
+    assert srcs.sources[0].name == "FED-K8" and srcs.sources[0].rank == 1 and srcs.sources[0].years == 1
+    assert [(v.status, v.holiday, v.valid_to) for v in hist.versions] == [("closed", "Columbus Day", "")]
+    assert list(dis.days) == []  # one source: nothing to disagree with
+    assert closes.closes[0].source == "FED-K8"
