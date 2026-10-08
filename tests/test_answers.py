@@ -111,3 +111,12 @@ def test_coverage(loaded):
         {"year": 2027, "source": "X-PROJ", "kind": "projected"},
         {"year": 2029, "source": "X-PROJ", "kind": "projected"},
     ]
+
+
+def test_cme_calendars_count_next_year_from_their_rules():
+    from app.calendars.definitions import CALENDARS
+
+    for name in ("CME-IR", "CME-FX"):
+        cal = CALENDARS[name]
+        assert cal.next_year_from == "rules" and cal.next_year_due == (12, 1)
+        assert [(x.name, x.kind) for x in cal.sources] == [(f"{name}-RULES", "rules"), (f"{name}-PROJECTED", "projected")]
