@@ -123,6 +123,15 @@ CALENDARS: dict[str, CalendarDef] = {
         next_year_from="rules",
         sources=(SourceDef("CA-RULES", "rules"),),
     ),
+    # Zurich's SIC banking holidays (mkt-data docs/phase-4.md, "Calendars"): the cited rules to 2100 for now; SIX's
+    # published list (SIX-SIC) joins once mkt-data parses it.
+    "CH": CalendarDef(
+        name="CH",
+        description="Swiss franc payments holidays (SIC, Zurich)",
+        timezone="Europe/Zurich",
+        next_year_from="rules",
+        sources=(SourceDef("CH-RULES", "rules"),),
+    ),
     "CME-FX": CalendarDef(
         name="CME-FX",
         description="CME Group FX futures: days with a trade date and settlement",
