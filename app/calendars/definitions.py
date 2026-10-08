@@ -141,6 +141,15 @@ CALENDARS: dict[str, CalendarDef] = {
         next_year_from="rules",
         sources=(SourceDef("AU-RULES", "rules"),),
     ),
+    # New Zealand's NZD settlement holidays (mkt-data docs/phase-4.md, "Calendars"): a cited rules file to 2100 is the
+    # whole calendar, so next year comes from the rules.
+    "NZ": CalendarDef(
+        name="NZ",
+        description="New Zealand dollar settlement holidays (national; ESAS)",
+        timezone="Pacific/Auckland",
+        next_year_from="rules",
+        sources=(SourceDef("NZ-RULES", "rules"),),
+    ),
     "CME-FX": CalendarDef(
         name="CME-FX",
         description="CME Group FX futures: days with a trade date and settlement",
