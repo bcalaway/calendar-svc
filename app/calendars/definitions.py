@@ -106,6 +106,14 @@ CALENDARS: dict[str, CalendarDef] = {
         next_year_from="rules",
         sources=(SourceDef("TARGET-RULES", "rules"),),
     ),
+    # Tokyo's bank holidays (mkt-data docs/phase-4.md, "Calendars"): the Cabinet Office's CSV lists through the
+    # end of next year, so next year is always due.
+    "JP": CalendarDef(
+        name="JP",
+        description="Japan bank holidays (Tokyo): national holidays and December 31-January 3",
+        timezone="Asia/Tokyo",
+        sources=(SourceDef("JP-CAO"), SourceDef("JP-BANK", "rules"), SourceDef("JP-PROJECTED", "projected")),
+    ),
     "CME-FX": CalendarDef(
         name="CME-FX",
         description="CME Group FX futures: days with a trade date and settlement",
