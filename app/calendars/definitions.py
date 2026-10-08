@@ -97,6 +97,15 @@ CALENDARS: dict[str, CalendarDef] = {
         timezone="Europe/London",
         sources=(SourceDef("GB-GOVUK"), SourceDef("GB-RULES", "rules"), SourceDef("GB-PROJECTED", "projected")),
     ),
+    # The euro's settlement calendar: the ECB's fixed closing days, a rules file to 2100 (mkt-data
+    # docs/phase-4.md, "Calendars"). Next year counts as there from the rules.
+    "TARGET": CalendarDef(
+        name="TARGET",
+        description="TARGET/T2 closing days (euro settlement)",
+        timezone="Europe/Berlin",
+        next_year_from="rules",
+        sources=(SourceDef("TARGET-RULES", "rules"),),
+    ),
     "CME-FX": CalendarDef(
         name="CME-FX",
         description="CME Group FX futures: days with a trade date and settlement",
