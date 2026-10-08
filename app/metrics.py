@@ -109,9 +109,10 @@ def render(s, today: date | None = None) -> str:
                 "projected": "yes" if d.day.year in projected_years else "no",
             }, (d.day - today).days))
         # Next year counts as published only from a publisher (not rules or a
-        # projection), so a projection can't hide a missing year.
+        # projection), so a projection can't hide a missing year; for a calendar
+        # with no publisher (CME's), from its rules file.
         nxt = today.year + 1
-        is_published = nxt in years["published"]
+        is_published = nxt in years["published"] or (cal_def.next_year_from == "rules" and nxt in years["rules"])
         due = date(today.year, *cal_def.next_year_due)
         published.append(({"calendar": name, "year": str(nxt)}, int(is_published)))
         overdue.append(({"calendar": name, "year": str(nxt)}, int(not is_published and today >= due)))

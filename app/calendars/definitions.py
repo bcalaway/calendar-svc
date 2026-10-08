@@ -33,6 +33,10 @@ class CalendarDef:
     # "next year published" check). K.8 and NYSE list years ahead, so for them
     # next year is always due; SIFMA publishes in mid-December.
     next_year_due: tuple[int, int] = (1, 1)
+    # Which kind of source must cover next year for it to count as there: "published" (a publisher, so a
+    # projection can't hide a missing year), or "rules" for a calendar with no publisher we capture (CME's,
+    # whose rules files are extended a year at a time from its notices).
+    next_year_from: str = "published"
 
     @property
     def source_names(self) -> list[str]:
@@ -74,5 +78,23 @@ CALENDARS: dict[str, CalendarDef] = {
             SourceDef("NYSE-RULES", "rules"),
             SourceDef("NYSE-PROJECTED", "projected"),
         ),
+    ),
+    # CME's business days for its rates and FX futures (mkt-data docs/phase-4.md, "Calendars"): rules cited from
+    # CME's notices, no captured publisher. Next year is due in the rules file from December 1.
+    "CME-IR": CalendarDef(
+        name="CME-IR",
+        description="CME Group U.S. interest rate futures: days with a trade date and settlement",
+        timezone="America/Chicago",
+        next_year_due=(12, 1),
+        next_year_from="rules",
+        sources=(SourceDef("CME-IR-RULES", "rules"), SourceDef("CME-IR-PROJECTED", "projected")),
+    ),
+    "CME-FX": CalendarDef(
+        name="CME-FX",
+        description="CME Group FX futures: days with a trade date and settlement",
+        timezone="America/Chicago",
+        next_year_due=(12, 1),
+        next_year_from="rules",
+        sources=(SourceDef("CME-FX-RULES", "rules"), SourceDef("CME-FX-PROJECTED", "projected")),
     ),
 }
