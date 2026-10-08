@@ -114,6 +114,15 @@ CALENDARS: dict[str, CalendarDef] = {
         timezone="Asia/Tokyo",
         sources=(SourceDef("JP-CAO"), SourceDef("JP-BANK", "rules"), SourceDef("JP-PROJECTED", "projected")),
     ),
+    # Canada's payments holidays (mkt-data docs/phase-4.md, "Calendars"): a cited rules file to 2100 is the whole
+    # calendar, so next year comes from the rules.
+    "CA": CalendarDef(
+        name="CA",
+        description="Canada payments holidays (Payments Canada, Toronto)",
+        timezone="America/Toronto",
+        next_year_from="rules",
+        sources=(SourceDef("CA-RULES", "rules"),),
+    ),
     "CME-FX": CalendarDef(
         name="CME-FX",
         description="CME Group FX futures: days with a trade date and settlement",
