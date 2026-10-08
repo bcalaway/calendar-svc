@@ -89,6 +89,14 @@ CALENDARS: dict[str, CalendarDef] = {
         next_year_from="rules",
         sources=(SourceDef("CME-IR-RULES", "rules"), SourceDef("CME-IR-PROJECTED", "projected")),
     ),
+    # London's bank holidays, for the sterling futures (mkt-data docs/phase-4.md, "Calendars"). gov.uk lists
+    # about two years ahead, so next year is always due.
+    "GB": CalendarDef(
+        name="GB",
+        description="England and Wales bank holidays (London): closed weekdays",
+        timezone="Europe/London",
+        sources=(SourceDef("GB-GOVUK"), SourceDef("GB-RULES", "rules"), SourceDef("GB-PROJECTED", "projected")),
+    ),
     "CME-FX": CalendarDef(
         name="CME-FX",
         description="CME Group FX futures: days with a trade date and settlement",
