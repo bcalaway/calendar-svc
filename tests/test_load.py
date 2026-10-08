@@ -46,7 +46,7 @@ def test_state_from_rows_keeps_current_days_and_times():
 def test_load_builds_every_calendar_and_records_the_run(migrated_db):
     with db.session() as s:
         out = service.run_load(s, _fetch({"FED-K8": K8, "SIFMA-US-HOLIDAYS": SIFMA}))
-    assert [c["calendar"] for c in out["calendars"]] == ["FED", "SIFMA-US", "NYSE", "CME-IR", "GB", "TARGET", "JP", "CA", "CH", "AU", "CME-FX"]
+    assert [c["calendar"] for c in out["calendars"]] == ["FED", "SIFMA-US", "NYSE", "CME-IR", "GB", "TARGET", "JP", "CA", "CH", "AU", "NZ", "CME-FX"]
     with db.session() as s:
         days = s.scalars(select(CalendarDay.day).where(CalendarDay.valid_to.is_(None))).all()
         run = s.scalar(select(LoadRun))
