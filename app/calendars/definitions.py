@@ -150,7 +150,7 @@ CALENDARS: dict[str, CalendarDef] = {
         next_year_from="rules",
         sources=(SourceDef("NZ-RULES", "rules"),),
     ),
-    # Stockholm, Oslo and Mexico City (mkt-data docs/phase-4.md, "Calendars"): cited rules files to 2100 are the whole
+    # Stockholm, Oslo, Copenhagen and Mexico City (mkt-data docs/phase-4.md, "Calendars"): cited rules files to 2100 are the whole
     # calendars for now (Norges Bank's page joins NO once mkt-data parses it), so next year comes from the rules.
     "SE": CalendarDef(
         name="SE",
@@ -165,6 +165,13 @@ CALENDARS: dict[str, CalendarDef] = {
         timezone="Europe/Oslo",
         next_year_from="rules",
         sources=(SourceDef("NO-RULES", "rules"),),
+    ),
+    "DK": CalendarDef(
+        name="DK",
+        description="Danish krone settlement holidays (Copenhagen banks)",
+        timezone="Europe/Copenhagen",
+        next_year_from="rules",
+        sources=(SourceDef("DK-RULES", "rules"),),
     ),
     "MX": CalendarDef(
         name="MX",
