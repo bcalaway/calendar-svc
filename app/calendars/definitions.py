@@ -284,6 +284,22 @@ CALENDARS: dict[str, CalendarDef] = {
         next_year_from="rules",
         sources=(SourceDef("ID-RULES", "rules"),),
     ),
+    "IN": CalendarDef(
+        name="IN",
+        description="Indian rupee settlement holidays (RTGS and CCIL, Mumbai)",
+        timezone="Asia/Kolkata",
+        next_year_due=(12, 1),
+        next_year_from="rules",
+        sources=(SourceDef("IN-RULES", "rules"),),
+    ),
+    "KR": CalendarDef(
+        name="KR",
+        description="Korean won settlement holidays (BOK-Wire+, Seoul)",
+        timezone="Asia/Seoul",
+        next_year_due=(7, 1),
+        next_year_from="rules",
+        sources=(SourceDef("KR-RULES", "rules"),),
+    ),
     "CME-FX": CalendarDef(
         name="CME-FX",
         description="CME Group FX futures: days with a trade date and settlement",
