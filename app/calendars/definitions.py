@@ -181,6 +181,43 @@ CALENDARS: dict[str, CalendarDef] = {
         next_year_from="rules",
         sources=(SourceDef("MX-RULES", "rules"),),
     ),
+    # The emerging-market FX futures' calendars (mkt-data docs/phase-4.md, step 2d): cited rules files, with ANBIMA's
+    # spreadsheet beside BR's (kept raw until its parser is written). Next year comes from the rules.
+    "BR": CalendarDef(
+        name="BR",
+        description="Brazilian real settlement holidays (national holidays; ANBIMA)",
+        timezone="America/Sao_Paulo",
+        next_year_from="rules",
+        sources=(SourceDef("BR-ANBIMA"), SourceDef("BR-RULES", "rules")),
+    ),
+    "ZA": CalendarDef(
+        name="ZA",
+        description="South African rand settlement holidays (SAMOS, Johannesburg)",
+        timezone="Africa/Johannesburg",
+        next_year_from="rules",
+        sources=(SourceDef("ZA-RULES", "rules"),),
+    ),
+    "PL": CalendarDef(
+        name="PL",
+        description="Polish zloty settlement holidays (SORBNET, Warsaw)",
+        timezone="Europe/Warsaw",
+        next_year_from="rules",
+        sources=(SourceDef("PL-RULES", "rules"),),
+    ),
+    "CZ": CalendarDef(
+        name="CZ",
+        description="Czech koruna settlement holidays (CERTIS, Prague)",
+        timezone="Europe/Prague",
+        next_year_from="rules",
+        sources=(SourceDef("CZ-RULES", "rules"),),
+    ),
+    "HU": CalendarDef(
+        name="HU",
+        description="Hungarian forint settlement holidays (VIBER, Budapest)",
+        timezone="Europe/Budapest",
+        next_year_from="rules",
+        sources=(SourceDef("HU-RULES", "rules"),),
+    ),
     "CME-FX": CalendarDef(
         name="CME-FX",
         description="CME Group FX futures: days with a trade date and settlement",
