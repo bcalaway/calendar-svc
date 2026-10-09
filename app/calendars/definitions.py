@@ -226,7 +226,7 @@ CALENDARS: dict[str, CalendarDef] = {
         timezone="America/Santiago",
         next_year_due=(12, 1),
         next_year_from="rules",
-        sources=(SourceDef("CL-RULES", "rules"),),
+        sources=(SourceDef("CL-RULES", "rules"), SourceDef("CL-PROJECTED", "projected")),
     ),
     "IL": CalendarDef(
         name="IL",
@@ -234,7 +234,7 @@ CALENDARS: dict[str, CalendarDef] = {
         timezone="Asia/Jerusalem",
         next_year_due=(9, 1),
         next_year_from="rules",
-        sources=(SourceDef("IL-RULES", "rules"),),
+        sources=(SourceDef("IL-RULES", "rules"), SourceDef("IL-PROJECTED", "projected")),
     ),
     "TR": CalendarDef(
         name="TR",
@@ -242,7 +242,7 @@ CALENDARS: dict[str, CalendarDef] = {
         timezone="Europe/Istanbul",
         next_year_due=(12, 1),
         next_year_from="rules",
-        sources=(SourceDef("TR-RULES", "rules"),),
+        sources=(SourceDef("TR-RULES", "rules"), SourceDef("TR-PROJECTED", "projected")),
     ),
     "HK": CalendarDef(
         name="HK",
@@ -250,7 +250,7 @@ CALENDARS: dict[str, CalendarDef] = {
         timezone="Asia/Hong_Kong",
         next_year_due=(7, 1),
         next_year_from="rules",
-        sources=(SourceDef("HK-RULES", "rules"),),
+        sources=(SourceDef("HK-RULES", "rules"), SourceDef("HK-PROJECTED", "projected")),
     ),
     "CN": CalendarDef(
         name="CN",
@@ -258,7 +258,7 @@ CALENDARS: dict[str, CalendarDef] = {
         timezone="Asia/Shanghai",
         next_year_due=(12, 1),
         next_year_from="rules",
-        sources=(SourceDef("CN-RULES", "rules"),),
+        sources=(SourceDef("CN-RULES", "rules"), SourceDef("CN-PROJECTED", "projected")),
     ),
     "SG": CalendarDef(
         name="SG",
@@ -266,7 +266,7 @@ CALENDARS: dict[str, CalendarDef] = {
         timezone="Asia/Singapore",
         next_year_due=(7, 1),
         next_year_from="rules",
-        sources=(SourceDef("SG-RULES", "rules"),),
+        sources=(SourceDef("SG-RULES", "rules"), SourceDef("SG-PROJECTED", "projected")),
     ),
     "TH": CalendarDef(
         name="TH",
@@ -274,7 +274,7 @@ CALENDARS: dict[str, CalendarDef] = {
         timezone="Asia/Bangkok",
         next_year_due=(10, 1),
         next_year_from="rules",
-        sources=(SourceDef("TH-RULES", "rules"),),
+        sources=(SourceDef("TH-RULES", "rules"), SourceDef("TH-PROJECTED", "projected")),
     ),
     "ID": CalendarDef(
         name="ID",
@@ -282,7 +282,7 @@ CALENDARS: dict[str, CalendarDef] = {
         timezone="Asia/Jakarta",
         next_year_due=(10, 1),
         next_year_from="rules",
-        sources=(SourceDef("ID-RULES", "rules"),),
+        sources=(SourceDef("ID-RULES", "rules"), SourceDef("ID-PROJECTED", "projected")),
     ),
     "IN": CalendarDef(
         name="IN",
@@ -290,7 +290,7 @@ CALENDARS: dict[str, CalendarDef] = {
         timezone="Asia/Kolkata",
         next_year_due=(12, 1),
         next_year_from="rules",
-        sources=(SourceDef("IN-RULES", "rules"),),
+        sources=(SourceDef("IN-RULES", "rules"), SourceDef("IN-PROJECTED", "projected")),
     ),
     "KR": CalendarDef(
         name="KR",
@@ -298,7 +298,7 @@ CALENDARS: dict[str, CalendarDef] = {
         timezone="Asia/Seoul",
         next_year_due=(7, 1),
         next_year_from="rules",
-        sources=(SourceDef("KR-RULES", "rules"),),
+        sources=(SourceDef("KR-RULES", "rules"), SourceDef("KR-PROJECTED", "projected")),
     ),
     "CME-FX": CalendarDef(
         name="CME-FX",
