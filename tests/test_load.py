@@ -47,7 +47,7 @@ def test_load_builds_every_calendar_and_records_the_run(migrated_db):
     with db.session() as s:
         out = service.run_load(s, _fetch({"FED-K8": K8, "SIFMA-US-HOLIDAYS": SIFMA}))
     assert [c["calendar"] for c in out["calendars"]] == ["FED", "SIFMA-US", "NYSE", "CME-IR", "GB", "TARGET", "JP", "CA", "CH", "AU", "NZ", "SE", "NO", "DK", "MX", "BR", "ZA", "PL", "CZ", "HU",
-        "CL", "IL", "TR", "HK", "CN", "SG", "TH", "ID", "CME-FX"]
+        "CL", "IL", "TR", "HK", "CN", "SG", "TH", "ID", "IN", "KR", "CME-FX"]
     with db.session() as s:
         days = s.scalars(select(CalendarDay.day).where(CalendarDay.valid_to.is_(None))).all()
         run = s.scalar(select(LoadRun))
